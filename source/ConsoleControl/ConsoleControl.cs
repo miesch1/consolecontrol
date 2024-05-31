@@ -250,57 +250,6 @@ namespace ConsoleControl
             }));
         }
 
-        
-
-        /// <summary>
-        /// Runs a process.
-        /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <param name="arguments">The arguments.</param>
-        public void StartProcess(string fileName, string arguments)
-        {
-            //  Are we showing diagnostics?
-            if (ShowDiagnostics)
-            {
-                WriteOutput("Preparing to run " + fileName, Color.FromArgb(255, 0, 255, 0));
-                if (!string.IsNullOrEmpty(arguments))
-                    WriteOutput(" with arguments " + arguments + "." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));
-                else
-                    WriteOutput("." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));
-            }
-
-            //  Start the process.
-            processInterace.StartProcess(fileName, arguments);
-
-            //  If we enable input, make the control not read only.
-            if (IsInputEnabled)
-                richTextBoxConsole.ReadOnly = false;
-        }
-
-        /// <summary>
-        /// Runs a process.
-        /// </summary>
-        /// <param name="processStartInfo"><see cref="ProcessStartInfo"/> to pass to the process.</param>
-        public void StartProcess(ProcessStartInfo processStartInfo)
-        {
-            //  Are we showing diagnostics?
-            if (ShowDiagnostics)
-            {
-                WriteOutput("Preparing to run " + processStartInfo.FileName, Color.FromArgb(255, 0, 255, 0));
-                if (!string.IsNullOrEmpty(processStartInfo.Arguments))
-                    WriteOutput(" with arguments " + processStartInfo.Arguments + "." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));
-                else
-                    WriteOutput("." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));
-            }
-
-            //  Start the process.
-            processInterace.StartProcess(processStartInfo);
-
-            //  If we enable input, make the control not read only.
-            if (IsInputEnabled)
-                richTextBoxConsole.ReadOnly = false;
-        }
-
         /// <summary>
         /// Stops the process.
         /// </summary>
