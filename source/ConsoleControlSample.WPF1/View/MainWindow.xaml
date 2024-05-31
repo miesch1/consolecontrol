@@ -1,0 +1,29 @@
+﻿<Window x:Class="ConsoleControlSample.WPF1.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:consoleControl="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
+        xmlns:local="clr-namespace:ConsoleControlSample.WPF1.View"
+        Title="Console Control WPF Sample" Height="600" Width="800" Icon="../Resources/Console.ico">
+
+    <!-- Resources.-->
+    <Window.Resources>
+        
+    </Window.Resources>
+    <Grid>
+        <DockPanel>
+            <!-- The main toolbar. -->
+            
+
+            <!-- The Status Bar. -->
+            <StatusBar DockPanel.Dock="Bottom">
+                <TextBlock>
+                    <Run Text="Console State: " />
+                    <Run Text="{Binding ProcessState}" />
+                </TextBlock>
+            </StatusBar>
+            <consoleControl:ConsoleControl 
+            x:Name="consoleControl"
+            FontSize="14" />
+        </DockPanel>
+    </Grid>
+</Window>

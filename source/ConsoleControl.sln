@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31624.102
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleControl", "ConsoleControl\ConsoleControl.csproj", "{737CC7F2-EC7C-4800-B7EB-72637E892C42}"
 EndProject
@@ -22,6 +22,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Controls", "1. Controls", "{75F316A9-2D1A-4788-B37B-8671FA2F17ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Samples", "2. Samples", "{88DD7B77-D58C-4AF8-B21B-A2FE9B3C74C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleControlSample.WPF1", "ConsoleControlSample.WPF1\ConsoleControlSample.WPF1.csproj", "{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +86,18 @@ Global
 		{4FA35552-432C-4AEF-8B5B-05883D11F098}.Release|Mixed Platforms.Build.0 = Release|x86
 		{4FA35552-432C-4AEF-8B5B-05883D11F098}.Release|x86.ActiveCfg = Release|x86
 		{4FA35552-432C-4AEF-8B5B-05883D11F098}.Release|x86.Build.0 = Release|x86
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,6 +108,7 @@ Global
 		{A4B8573F-EBFC-4140-B8AA-7C037919EF57} = {75F316A9-2D1A-4788-B37B-8671FA2F17ED}
 		{FD9FF553-D7C6-45A8-8321-5D9058B38E2D} = {75F316A9-2D1A-4788-B37B-8671FA2F17ED}
 		{4FA35552-432C-4AEF-8B5B-05883D11F098} = {88DD7B77-D58C-4AF8-B21B-A2FE9B3C74C2}
+		{9A14F396-BC50-435F-B450-A0EF3BF3CCF8} = {88DD7B77-D58C-4AF8-B21B-A2FE9B3C74C2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {62B6A1F7-984A-402B-9F6E-ABF7E539A5EA}
