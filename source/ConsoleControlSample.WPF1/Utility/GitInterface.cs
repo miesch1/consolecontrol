@@ -20,6 +20,7 @@ namespace ConsoleControlSample.WPF1.Utility
         {
             get { return _processInterface; }
         }
+
         public string WorkingDirectory
         {
             get { return _workingDirectory; }
@@ -42,6 +43,49 @@ namespace ConsoleControlSample.WPF1.Utility
             // TODO: Initial directory is currently location of current EXE. Consider tracking user's last selected Repo.
             _workingDirectory = Directory.GetCurrentDirectory();
             _processInterface.StartProcess(fileName, arguments, _workingDirectory);
+        }
+
+        public bool ValidateSelectedDirectory(string folderPath, out ICollection<string> validationErrors)
+        {
+            validationErrors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(folderPath))
+                validationErrors.Add("Directory path cannot be empty or whitespace.");
+            else if (!Directory.Exists(folderPath))
+                validationErrors.Add("Directory path does not exist.");
+            else
+            {
+                string stderr_str;
+                string stdout_str;
+
+                string newDirectoryRoot = Directory.GetDirectoryRoot(folderPath);
+                if (newDirectoryRoot != Directory.GetDirectoryRoot(WorkingDirectory))
+                {
+                    // To change logical drives in cmd line, can't use 'cd'.
+                    //_gitInterface.WriteInput($"{newDirectoryRoot.TrimEnd(Path.DirectorySeparatorChar)}", out stderr_str, out stdout_str);
+                    if (!WriteInputAsync($"{newDirectoryRoot.TrimEnd(Path.DirectorySeparatorChar)}").Result)
+                    {
+
+                    }
+                    System.Threading.Thread.Sleep(200);
+                    // while (error == null) { }
+                    //error = null;
+                }
+
+                WorkingDirectory = folderPath;
+                WriteInput($"cd {folderPath}", out stderr_str, out stdout_str);
+                System.Threading.Thread.Sleep(200);
+                //while (error == null) { }
+                //error = null;
+                WriteInput($"git status", out stderr_str, out stdout_str);
+                System.Threading.Thread.Sleep(200);
+                //while (error == null) { }
+                //error = null;
+            }
+            //else if (!GitHelper.Instance.IsDirectoryValidRepo(folderPath))
+            //    validationErrors.Add("The supplied path is not a valid Git repo.");
+
+            return validationErrors.Count == 0;
         }
 
         public void WriteInput(string input, out string stderr_str, out string stdout_str)

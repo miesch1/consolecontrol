@@ -14,6 +14,15 @@ namespace ConsoleControl.WPF
     /// </summary>
     public partial class ConsoleControl : UserControl
     {
+        /// <summary>
+        /// Occurs when console output is produced.
+        /// </summary>
+        public event ProcessEventHandler ProcessOutput;
+
+        /// <summary>
+        /// Occurs when console input is produced.
+        /// </summary>
+        public event ProcessEventHandler ProcessInput;
 
         /// <summary>
         /// The internal process interface used to interface with the process.
@@ -30,16 +39,6 @@ namespace ConsoleControl.WPF
         /// </summary>
         private string lastInput;
 
-        /// <summary>
-        /// Occurs when console output is produced.
-        /// </summary>
-        public event ProcessEventHandler ProcessOutput;
-
-        /// <summary>
-        /// Occurs when console input is produced.
-        /// </summary>
-        public event ProcessEventHandler ProcessInput;
-
         private static readonly DependencyProperty ShowDiagnosticsProperty =
           DependencyProperty.Register("ShowDiagnostics", typeof(bool), typeof(ConsoleControl),
           new PropertyMetadata(false, OnShowDiagnosticsChanged));
@@ -55,11 +54,6 @@ namespace ConsoleControl.WPF
             get => (bool)GetValue(ShowDiagnosticsProperty);
             set => SetValue(ShowDiagnosticsProperty, value);
         }
-
-        private static void OnShowDiagnosticsChanged(DependencyObject o, DependencyPropertyChangedEventArgs args)
-        {
-        }
-
 
         private static readonly DependencyProperty IsInputEnabledProperty =
           DependencyProperty.Register("IsInputEnabled", typeof(bool), typeof(ConsoleControl),
@@ -371,6 +365,10 @@ namespace ConsoleControl.WPF
         private void OnProcessInput(ProcessEventArgs args)
         {
             ProcessInput?.Invoke(this, args);
+        }
+
+        private static void OnShowDiagnosticsChanged(DependencyObject o, DependencyPropertyChangedEventArgs args)
+        {
         }
     }
 }

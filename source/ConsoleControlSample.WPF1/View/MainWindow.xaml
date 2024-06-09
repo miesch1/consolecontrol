@@ -21,7 +21,7 @@
                     <Run Text="{Binding ProcessState}" />
                 </TextBlock>
             </StatusBar>
-            <consoleControl:ConsoleControl 
+            <consoleControl:ConsoleControl Loaded="ConsoleControl_Loaded" DataContext="{Binding ConsoleControlViewModel}"
             x:Name="consoleControl"
             FontSize="14" />
         </DockPanel>

@@ -5,10 +5,17 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\Console.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Resources\OpenFolder.xaml" />
+    <Page Remove="Resources\StatusInvalid.xaml" />
+    <Page Remove="Resources\StatusOK.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +25,9 @@
 
   <ItemGroup>
     <Resource Include="Resources\Console.ico" />
+    <Resource Include="Resources\OpenFolder.xaml" />
+    <Resource Include="Resources\StatusInvalid.xaml" />
+    <Resource Include="Resources\StatusOK.xaml" />
   </ItemGroup>
 
 </Project>

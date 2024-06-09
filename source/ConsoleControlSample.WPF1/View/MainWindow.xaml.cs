@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ConsoleControlSample.WPF1.Utility;
+using ConsoleControlSample.WPF1.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,16 @@ namespace ConsoleControlSample.WPF1.View
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void ConsoleControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            // HACK: I didn't develop this ConsoleControl, so without an overhaul I need easy access to its ProcessInterface for my ViewModel.
+            var viewModel = this.DataContext as MainWindowViewModel;
+            if (viewModel != null)
+            {
+                viewModel.ConsoleControlViewModel.SetGitInterface(new GitInterface(consoleControl.ProcessInterface));
+            }
         }
     }
 }
