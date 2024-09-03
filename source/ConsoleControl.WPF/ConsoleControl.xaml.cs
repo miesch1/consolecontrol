@@ -264,6 +264,7 @@ namespace ConsoleControl.WPF
         {
             RunOnUIDispatcher(() =>
             {
+                Debug.WriteLine($"WriteInput ({Environment.CurrentManagedThreadId}): {input}");
                 //  Are we echoing?
                 if (echo)
                 {
