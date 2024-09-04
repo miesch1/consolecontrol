@@ -19,7 +19,7 @@ namespace ConsoleControlSample.WPF1.Commands
 
         public override void Execute(object parameter)
         {
-            _consoleControlViewModel.GetGitInterface().StartProcess(parameter as string, string.Empty);
+            _consoleControlViewModel.GitInterface.StartProcessAsync(parameter as string, string.Empty);
         }
     }
 }

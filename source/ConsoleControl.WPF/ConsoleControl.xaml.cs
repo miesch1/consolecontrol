@@ -1,10 +1,16 @@
-﻿using System;
+﻿//https://github.com/dwmkerr/consolecontrol/blob/master/source/ConsoleControl.WPF/ConsoleControl.xaml.cs
+using System;
+using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using ConsoleControlAPI;
 
 namespace ConsoleControl.WPF
@@ -15,19 +21,72 @@ namespace ConsoleControl.WPF
     public partial class ConsoleControl : UserControl
     {
         /// <summary>
-        /// Occurs when console output is produced.
+        ///   Implements a set of predefined colors.
+        ///   Thank you https://stackoverflow.com/a/28211440/3757184
         /// </summary>
-        public event ProcessEventHandler ProcessOutput;
+        public class ConsoleColors
+        {
+            /// <summary>
+            ///   The system-defined color for ConsoleColor.DarkGreen (#008000).
+            /// </summary>
+            private static Color _commandOutput = Color.FromRgb(0x00, 0x80, 0x00);
+
+            /// <summary>
+            ///   The system-defined color for ConsoleColor.DarkRed (#800000).
+            /// </summary>
+            private static Color _systemError = Color.FromRgb(0x80, 0x00, 0x00);
+
+            /// <summary>
+            ///   The system-defined color for ConsoleColor.DarkCyan (#008080).
+            /// </summary>
+            private static Color _systemInput = Color.FromRgb(0x00, 0x80, 0x80);
+
+            /// <summary>
+            ///   The system-defined color for ConsoleColor.Gray (#C0C0C0).
+            /// </summary>
+            private static Color _systemOutput = Color.FromRgb(0xC0, 0xC0, 0xC0);
+
+            /// <summary>
+            ///   Gets the system-defined color for ConsoleColor.DarkGreen (#008000).
+            /// </summary>
+            /// 
+            /// <returns>Represents colors in terms of alpha, red, green, and blue channels.</returns>
+            public static Color CommandOutput
+            {
+                get { return _commandOutput; }
+            }
+
+            /// <summary>
+            ///   Gets the system-defined color for ConsoleColor.DarkRed (#800000).
+            /// </summary>
+            /// 
+            /// <returns>Represents colors in terms of alpha, red, green, and blue channels.</returns>
+            public static Color SystemError
+            {
+                get { return _systemError; }
+            }
+
+            /// <summary>
+            ///   Gets the system-defined color for ConsoleColor.DarkCyan (#008080).
+            /// </summary>
+            public static Color SystemInput
+            {
+                get { return _systemInput; }
+            }
+
+            /// <summary>
+            ///   Gets the system-defined color for ConsoleColor.Gray (#C0C0C0).
+            /// </summary>
+            public static Color SystemOutput
+            {
+                get { return _systemOutput; }
+            }
+        }
 
         /// <summary>
-        /// Occurs when console input is produced.
-        /// </summary>
+         /// Occurs when console input is produced.
+         /// </summary>
         public event ProcessEventHandler ProcessInput;
-
-        /// <summary>
-        /// The internal process interface used to interface with the process.
-        /// </summary>
-        private readonly ProcessInterface processInterface = new ProcessInterface();
 
         /// <summary>
         /// Current position that input starts at.
@@ -35,29 +94,9 @@ namespace ConsoleControl.WPF
         private int inputStartPos;
 
         /// <summary>
-        /// The last input string (used so that we can make sure we don't echo input twice).
+        /// The internal process interface used to interface with the process.
         /// </summary>
-        private string lastInput;
-
-        private static readonly DependencyProperty ShowDiagnosticsProperty =
-          DependencyProperty.Register("ShowDiagnostics", typeof(bool), typeof(ConsoleControl),
-          new PropertyMetadata(false, OnShowDiagnosticsChanged));
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to show diagnostics.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if show diagnostics; otherwise, <c>false</c>.
-        /// </value>
-        public bool ShowDiagnostics
-        {
-            get => (bool)GetValue(ShowDiagnosticsProperty);
-            set => SetValue(ShowDiagnosticsProperty, value);
-        }
-
-        private static readonly DependencyProperty IsInputEnabledProperty =
-          DependencyProperty.Register("IsInputEnabled", typeof(bool), typeof(ConsoleControl),
-          new PropertyMetadata(true));
+        private ProcessInterface _processInterface;
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance has input enabled.
@@ -70,6 +109,10 @@ namespace ConsoleControl.WPF
             get { return (bool)GetValue(IsInputEnabledProperty); }
             set { SetValue(IsInputEnabledProperty, value); }
         }
+
+        private static readonly DependencyProperty IsInputEnabledProperty =
+          DependencyProperty.Register("IsInputEnabled", typeof(bool), typeof(ConsoleControl),
+          new PropertyMetadata(true));
 
         internal static readonly DependencyPropertyKey IsProcessRunningPropertyKey =
           DependencyProperty.RegisterReadOnly("IsProcessRunning", typeof(bool), typeof(ConsoleControl),
@@ -89,6 +132,10 @@ namespace ConsoleControl.WPF
             private set { SetValue(IsProcessRunningPropertyKey, value); }
         }
 
+        private static readonly DependencyProperty ProcessInterfaceProperty =
+          DependencyProperty.Register("ProcessInterface", typeof(ProcessInterface), typeof(ConsoleControl),
+          new PropertyMetadata(null, new PropertyChangedCallback(OnProcessInterfaceChanged)));
+
         /// <summary>
         /// Gets the internally used process interface.
         /// </summary>
@@ -97,8 +144,25 @@ namespace ConsoleControl.WPF
         /// </value>
         public ProcessInterface ProcessInterface
         {
-            get { return processInterface; }
+            get { return (ProcessInterface)GetValue(ProcessInterfaceProperty); }
+            set { SetValue(ProcessInterfaceProperty, value); }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to show diagnostics.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if show diagnostics; otherwise, <c>false</c>.
+        /// </value>
+        public bool ShowDiagnostics
+        {
+            get => (bool)GetValue(ShowDiagnosticsProperty);
+            set => SetValue(ShowDiagnosticsProperty, value);
+        }
+
+        private static readonly DependencyProperty ShowDiagnosticsProperty =
+          DependencyProperty.Register("ShowDiagnostics", typeof(bool), typeof(ConsoleControl),
+          new PropertyMetadata(false, OnShowDiagnosticsChanged));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleControl"/> class.
@@ -106,12 +170,6 @@ namespace ConsoleControl.WPF
         public ConsoleControl()
         {
             InitializeComponent();
-            
-            //  Handle process events.
-            processInterface.ProcessOutput += ProcessInterface_ProcessOutput;
-            processInterface.ProcessError += ProcessInterface_ProcessError;
-            processInterface.ProcessInput += ProcessInterface_ProcessInput;
-            processInterface.ProcessExit += ProcessInterface_ProcessExit;
 
             //  Wait for key down messages on the rich text box.
             richTextBoxConsole.PreviewKeyDown += richTextBoxConsole_PreviewKeyDown;
@@ -125,10 +183,7 @@ namespace ConsoleControl.WPF
         void ProcessInterface_ProcessError(object sender, ProcessEventArgs args)
         {
             //  Write the output, in red
-            WriteOutput(args.Content, Colors.Red);
-
-            //  Fire the output event.
-            OnProcessOutput(args);
+            WriteOutput(args.Content, ConsoleColors.SystemError);
         }
 
         /// <summary>
@@ -136,13 +191,41 @@ namespace ConsoleControl.WPF
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="args">The <see cref="ProcessEventArgs"/> instance containing the event data.</param>
+        void ProcessInterface_ProcessEvent(object sender, ProcessEventArgs args)
+        {
+            switch (args.ProcessType)
+            {
+                case ProcessType.Start:
+                    break;
+                case ProcessType.StartOutput:
+                case ProcessType.CommandPrompt:
+                    ProcessInterface_ProcessOutput(sender, args);
+                    break;
+                case ProcessType.Input:
+                    ProcessInterface_ProcessInput(sender, args);
+                    break;
+                case ProcessType.CommandOutput:
+                    ProcessInterface_ProcessCommandOutput(sender, args);
+                    break;
+                case ProcessType.Error:
+                    ProcessInterface_ProcessError(sender, args);
+                    break;
+                case ProcessType.Exit:
+                    ProcessInterface_ProcessExit(sender, args);
+                    break;
+            }
+        }
+
         void ProcessInterface_ProcessOutput(object sender, ProcessEventArgs args)
         {
             //  Write the output, in white
-            WriteOutput(args.Content, Colors.White);
+            WriteOutput(args.Content, ConsoleColors.SystemOutput);
+        }
 
-            //  Fire the output event.
-            OnProcessOutput(args);
+        void ProcessInterface_ProcessCommandOutput(object sender, ProcessEventArgs args)
+        {
+            //  Write the output, in green
+            WriteOutput(args.Content, ConsoleColors.CommandOutput);
         }
 
         /// <summary>
@@ -152,6 +235,9 @@ namespace ConsoleControl.WPF
         /// <param name="args">The <see cref="ProcessEventArgs"/> instance containing the event data.</param>
         void ProcessInterface_ProcessInput(object sender, ProcessEventArgs args)
         {
+            //  Write the output, in cyan
+            WriteOutput(args.Content, ConsoleColors.SystemInput);
+
             OnProcessInput(args);
         }
 
@@ -168,14 +254,36 @@ namespace ConsoleControl.WPF
                 //  Are we showing diagnostics?
                 if (ShowDiagnostics)
                 {
-                    WriteOutput(Environment.NewLine + processInterface.ProcessFileName + " exited.", Color.FromArgb(255, 0, 255, 0));
+                    WriteOutput(Environment.NewLine + _processInterface.ProcessFileName + " exited.", Color.FromArgb(255, 0, 255, 0));
                 }
 
-                richTextBoxConsole.IsReadOnly = true;
+                //richTextBoxConsole.IsReadOnly = true;
+                IsInputEnabled = false;
 
                 //  And we're no longer running.
                 IsProcessRunning = false;
             });
+        }
+
+        private static void OnProcessInterfaceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            // Handle process events. Note handler is static. Need to call an instance based method to subscribe.
+            // https://stackoverflow.com/a/2453249/3757184
+            ConsoleControl consoleControl = (ConsoleControl)d;
+            consoleControl.SubscribeProcessEvent();
+        }
+
+        /// <summary>
+        /// Fires the console input event.
+        /// </summary>
+        /// <param name="args">The <see cref="ProcessEventArgs"/> instance containing the event data.</param>
+        private void OnProcessInput(ProcessEventArgs args)
+        {
+            ProcessInput?.Invoke(this, args);
+        }
+
+        private static void OnShowDiagnosticsChanged(DependencyObject o, DependencyPropertyChangedEventArgs args)
+        {
         }
 
         /// <summary>
@@ -219,33 +327,6 @@ namespace ConsoleControl.WPF
         }
 
         /// <summary>
-        /// Writes the output to the console control.
-        /// </summary>
-        /// <param name="output">The output.</param>
-        /// <param name="color">The color.</param>
-        public void WriteOutput(string output, Color color)
-        {
-            if (string.IsNullOrEmpty(lastInput) == false &&
-                (output == lastInput || output.Replace("\r\n", "") == lastInput))
-                return;
-
-            RunOnUIDispatcher(() =>
-            {
-                //  Write the output.
-                var range = new TextRange(richTextBoxConsole.GetEndPointer(), richTextBoxConsole.GetEndPointer())
-                {
-                    Text = output
-                };
-                range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(color));
-                
-                //  Record the new input start.
-                richTextBoxConsole.ScrollToEnd();
-                richTextBoxConsole.SetCaretToEnd();
-                inputStartPos = richTextBoxConsole.GetCaretPosition();
-            });
-        }
-
-        /// <summary>
         /// Clears the output.
         /// </summary>
         public void ClearOutput()
@@ -273,13 +354,35 @@ namespace ConsoleControl.WPF
                     inputStartPos = richTextBoxConsole.GetEndPosition();
                 }
 
-                lastInput = input;
-
                 //  Write the input.
-                processInterface.WriteInput(input);
+                _processInterface.WriteInput(input);
 
                 //  Fire the event.
-                OnProcessInput(new ProcessEventArgs(input));
+                OnProcessInput(new ProcessEventArgs(ProcessType.Input, input));
+            });
+        }
+
+        /// <summary>
+        /// Writes the output to the console control.
+        /// </summary>
+        /// <param name="output">The output.</param>
+        /// <param name="color">The color.</param>
+        public void WriteOutput(string output, Color color)
+        {
+            RunOnUIDispatcher(() =>
+            {
+                Debug.WriteLine($"WriteOutput ({Environment.CurrentManagedThreadId}): {output}");
+                //  Write the output.
+                var range = new TextRange(richTextBoxConsole.GetEndPointer(), richTextBoxConsole.GetEndPointer())
+                {
+                    Text = output
+                };
+                range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(color));
+
+                //  Record the new input start.
+                richTextBoxConsole.ScrollToEnd();
+                richTextBoxConsole.SetCaretToEnd();
+                inputStartPos = richTextBoxConsole.GetCaretPosition();
             });
         }
 
@@ -327,13 +430,13 @@ namespace ConsoleControl.WPF
             }
 
             //  Start the process.
-            processInterface.StartProcess(processStartInfo);
+            _processInterface.StartProcess(processStartInfo);
 
             RunOnUIDispatcher(() =>
             {
                 //  If we enable input, make the control not read only.
-                if (IsInputEnabled)
-                    richTextBoxConsole.IsReadOnly = false;
+                //if (IsInputEnabled)
+                //    richTextBoxConsole.IsReadOnly = false;
 
                 //  We're now running.
                 IsProcessRunning = true;
@@ -347,29 +450,14 @@ namespace ConsoleControl.WPF
         public void StopProcess()
         {
             //  Stop the interface.
-            processInterface.StopProcess();
+            _processInterface.StopProcess();
         }
 
-        /// <summary>
-        /// Fires the console output event.
-        /// </summary>
-        /// <param name="args">The <see cref="ProcessEventArgs"/> instance containing the event data.</param>
-        private void OnProcessOutput(ProcessEventArgs args)
+        // Instance method to subsribe to ProcessEvent from PropertyChangedCallback. Seemed cleaner than doing it in ConsoleControl_Loaded event handler.
+        // https://stackoverflow.com/a/2453249/3757184
+        private void SubscribeProcessEvent()
         {
-            ProcessOutput?.Invoke(this, args);
-        }
-
-        /// <summary>
-        /// Fires the console input event.
-        /// </summary>
-        /// <param name="args">The <see cref="ProcessEventArgs"/> instance containing the event data.</param>
-        private void OnProcessInput(ProcessEventArgs args)
-        {
-            ProcessInput?.Invoke(this, args);
-        }
-
-        private static void OnShowDiagnosticsChanged(DependencyObject o, DependencyPropertyChangedEventArgs args)
-        {
+            ProcessInterface.ProcessEvent += ProcessInterface_ProcessEvent;
         }
     }
 }

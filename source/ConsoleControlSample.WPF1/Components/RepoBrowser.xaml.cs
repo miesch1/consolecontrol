@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
 using System.Windows.Controls;
-using ConsoleControlSample.WPF1.ViewModels;
+using ConsoleControlSample.WPF1.ViewModel;
 
 namespace ConsoleControlSample.WPF1.Components
 {

@@ -2,6 +2,7 @@
 using ConsoleControlSample.WPF1.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +34,10 @@ namespace ConsoleControlSample.WPF1.View
             var viewModel = this.DataContext as MainWindowViewModel;
             if (viewModel != null)
             {
-                viewModel.ConsoleControlViewModel.SetGitInterface(new GitInterface(consoleControl.ProcessInterface));
+                //viewModel.ConsoleControlViewModel.SetGitInterface(new GitInterface(consoleControl.ProcessInterface));
+                //viewModel.ConsoleControlViewModel.GetGitInterface().StartProcess("C:\\Program Files\\Git\\git-cmd.exe", string.Empty);
+
+                viewModel.ConsoleControlViewModel.GitInterface.StartProcessAsync("cmd.exe", string.Empty).GetAwaiter().GetResult();
             }
         }
     }

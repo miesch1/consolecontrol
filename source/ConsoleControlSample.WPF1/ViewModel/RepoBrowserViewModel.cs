@@ -1,5 +1,6 @@
 ﻿using ConsoleControlSample.WPF1.Commands;
 using ConsoleControlSample.WPF1.Utility;
+using ConsoleControlSample.WPF1.ViewModel;
 using MVVMEssentials.ViewModels;
 using System;
 using System.Collections;
@@ -15,11 +16,11 @@ using System.Windows.Controls;
 using System.Windows.Forms.Design;
 using System.Windows.Input;
 
-namespace ConsoleControlSample.WPF1.ViewModels
+namespace ConsoleControlSample.WPF1.ViewModel
 {
     public class RepoBrowserViewModel : ErrorsViewModel
     {
-        private GitInterface _gitInterface;
+        private ConsoleControlViewModel _consoleControlViewModel;
 
         private bool _iSDirectoryValidRepo;
 
@@ -33,10 +34,10 @@ namespace ConsoleControlSample.WPF1.ViewModels
 
         private string _selectedRepo;
 
-        public GitInterface GitInterface
-        {
-            get { return _gitInterface; }
-        }
+        //public GitInterface GitInterface
+        //{
+        //    get { return _gitInterface; }
+        //}
 
         public bool IsDirectoryValidRepo
         {
@@ -79,7 +80,7 @@ namespace ConsoleControlSample.WPF1.ViewModels
 
                     // From here, need to ignore any trailing backslash
                     string trimmedDirectory = value?.TrimEnd(Path.DirectorySeparatorChar);
-                    if (ValidateSelectedDirectory(trimmedDirectory).Result)
+                    if (ValidateSelectedDirectory(trimmedDirectory).GetAwaiter().GetResult())
                     {
                         if (!_repos.Contains(trimmedDirectory))
                         {
@@ -131,14 +132,14 @@ namespace ConsoleControlSample.WPF1.ViewModels
             }
         }
 
-        public RepoBrowserViewModel(GitInterface gitInterface)
+        public RepoBrowserViewModel(ConsoleControlViewModel consoleControlViewModel)
         {
             _repos = new ObservableCollection<string>();
             _repos.Add(@"C:\Dir1");
             _repos.Add(@"C:\Dir2");
             _repos.Add(@"C:\Dir3\Dir2\Dir1\git");
 
-            _gitInterface = gitInterface;
+            _consoleControlViewModel = consoleControlViewModel;
 
             PlaceholderText = "Select a previous Git repo or browse to new one...";
 
@@ -150,15 +151,11 @@ namespace ConsoleControlSample.WPF1.ViewModels
         internal async Task<bool> ValidateSelectedDirectory(string folderPath)
         {
             const string propertyKey = nameof(SelectedDirectory);
-            ICollection<string> validationErrors = null;
 
             /* Call service asynchronously */
-            bool isValid = await Task<bool>.Run(() =>
-            {
-                return _gitInterface.ValidateSelectedDirectory(folderPath, out validationErrors);
-            })
-            .ConfigureAwait(false);
+            ICollection<string> validationErrors = await _consoleControlViewModel.GitInterface.ValidateSelectedDirectoryAsync(folderPath);
 
+            bool isValid = validationErrors.Count == 0;
             if (!isValid)
             {
                 /* Update the collection in the dictionary returned by the GetErrors method */
